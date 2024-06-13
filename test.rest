@@ -1,0 +1,36 @@
+GET http://localhost:6688/api/chat
+
+###
+
+GET http://localhost:6688
+
+
+### signup user
+
+POST http://localhost:6688/api/signup
+Content-Type: application/json
+
+{
+    "fullname": "Alice Chen",
+    "email": "alice@acme.org",
+    "password": "123456"
+}
+
+
+### signin user
+POST  http://localhost:6688/api/signin
+Content-Type: application/json
+
+{
+    "email": "alice@acme.org",
+    "password": "123456"
+}
+
+### signin user with wrong password
+POST http://localhost:6688/api/signin
+Content-Type: application/json
+
+{
+    "email": "tchen@acme.org",
+    "password": "123456"
+}
