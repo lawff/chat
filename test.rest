@@ -30,7 +30,7 @@ Content-Type: application/json
 ### get chat list
 
 
-GET http://localhost:6688/api/chat
+GET http://localhost:6688/api/chats
 Authorization: Bearer {{token}}
 
 ### signin user with wrong password
@@ -46,3 +46,39 @@ Content-Type: application/json
 
 GET http://localhost:6688/api/users
 Authorization: Bearer {{token}}
+
+
+### signup user
+
+POST http://localhost:6688/api/signup
+Content-Type: application/json
+
+{
+    "workspace": "acme",
+    "fullname": "Alice Chen",
+    "email": "alice@acme.org",
+    "password": "123456"
+}
+
+### signup user
+
+POST http://localhost:6688/api/signup
+Content-Type: application/json
+
+{
+    "workspace": "acme",
+    "fullname": "Alice Chen1",
+    "email": "alice1@acme.org",
+    "password": "123456"
+}
+
+### create chat
+POST http://localhost:6688/api/chats
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "acme",
+    "members": [1, 2],
+    "public": false
+}

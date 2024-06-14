@@ -24,6 +24,12 @@ pub enum AppError {
 
     #[error("jwt error: {0}")]
     JwtError(#[from] jwt_simple::Error),
+
+    #[error("create chat error: {0}")]
+    CreateChatError(String),
+
+    #[error("Not found: {0}")]
+    NotFound(String),
 }
 
 impl ErrorOutput {
@@ -41,6 +47,8 @@ impl IntoResponse for AppError {
             Self::PasswordHashError(_) => StatusCode::UNPROCESSABLE_ENTITY,
             Self::SqlxError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::EmailAlreadyExists(_) => StatusCode::CONFLICT,
+            Self::CreateChatError(_) => StatusCode::BAD_REQUEST,
+            Self::NotFound(_) => StatusCode::NOT_FOUND,
         };
 
         (status, Json(ErrorOutput::new(self.to_string()))).into_response()
