@@ -10,6 +10,7 @@ Content-Type: application/json
 
 {
     "fullname": "Alice Chen",
+    "workspace": "cos",
     "email": "alice@acme.org",
     "password": "123456"
 }
@@ -40,3 +41,8 @@ Content-Type: application/json
     "email": "tchen@acme.org",
     "password": "123456"
 }
+
+### get user list
+
+GET http://localhost:6688/api/users
+Authorization: Bearer {{token}}
