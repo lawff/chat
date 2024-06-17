@@ -82,3 +82,26 @@ Authorization: Bearer {{token}}
     "members": [1, 2],
     "public": false
 }
+
+### upload files
+
+POST http://localhost:6688/api/upload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=MyBoundary
+
+--MyBoundary
+Content-Disposition: form-data; filename="face.png"
+Content-Type: application/octet-stream
+
+< /Users/lawliet/Downloads/face.png
+--MyBoundary
+Content-Disposition: form-data; filename="hello.txt"
+Content-Type: text/plain
+
+Hello, World!
+--MyBoundary--
+
+### get files
+
+GET http://localhost:6688/api/files/1/25d/bb4/5220d2af5bf19893ccfee91ecc9fa16263.png
+Authorization: Bearer {{token}}
