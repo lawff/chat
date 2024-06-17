@@ -1,10 +1,12 @@
 use axum::{
+    body::Body,
     extract::{Multipart, Path, State},
     http::HeaderMap,
     response::IntoResponse,
     Extension, Json,
 };
 use tokio::fs;
+use tokio_util::io::ReaderStream;
 use tracing::{info, warn};
 
 use crate::{models::ChatFile, AppError, AppState, User};
@@ -34,9 +36,13 @@ pub(crate) async fn file_handler(
     }
     let mine = mime_guess::from_path(&path).first_or_octet_stream();
 
-    let body = fs::read(path).await?;
+    let file = fs::File::open(path).await?;
+    let stream = ReaderStream::new(file);
+    let body = Body::from_stream(stream);
+
     let mut headers = HeaderMap::new();
     headers.insert("content-type", mine.to_string().parse().unwrap());
+
     Ok((headers, body))
 }
 
