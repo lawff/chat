@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
 pub use chat::CreateChat;
+pub use messages::{CreateMessage, ListMessages};
 pub use user::{CreateUser, SigninUser};
 
 #[derive(Debug, Deserialize, Serialize, Clone, FromRow, PartialEq)]
@@ -70,6 +71,6 @@ pub struct Message {
     pub chat_id: i64,
     pub sender_id: i64,
     pub content: String,
-    pub file: Vec<String>,
+    pub files: Option<Vec<String>>,
     pub created_at: DateTime<Local>,
 }
