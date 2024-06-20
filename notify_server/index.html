@@ -9,10 +9,27 @@
     <h1>Server Sent Events</h1>
 
     <script lang="javascript">
-      var source = new EventSource("/events");
+      var source = new EventSource("/events?access_token=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTg4ODQwMjUsImV4cCI6MTcxOTQ4ODgyNSwibmJmIjoxNzE4ODg0MDI1LCJpc3MiOiJjaGF0X3NlcnZlciIsImF1ZCI6ImNoYXRfd2ViIiwiaWQiOjEsIndzX2lkIjoxLCJmdWxsbmFtZSI6IkFsaWNlIENoZW4iLCJlbWFpbCI6ImFsaWNlQGFjbWUub3JnIiwiY3JlYXRlZF9hdCI6IjIwMjQtMDYtMTRUMTk6MzM6NTcuMzk1OTIxKzA4OjAwIn0.s01a_SW3GhxJPTO0znZqjr3zlEVihxsFLlyN3shtfsMCx9fKwtY6gmp9egUhwqx6dVk448pn7w4t3hSoHI0xAw");
+
       source.onmessage = function(event) {
         console.log("Got:", event.data);
       };
+
+      source.addEventListener("NewChat", function(event) {
+        console.log("NewChat:", event.data);
+      });
+
+      source.addEventListener("AddToChat", function(event) {
+        console.log("AddToChat:", event.data);
+      });
+
+      source.addEventListener("RemoveFromChat", function(event) {
+        console.log("RemoveFromChat:", event.data);
+      });
+
+      source.addEventListener("NewMessage", function(event) {
+        console.log("NewMessage:", event.data);
+      });
     </script>
   </body>
 </html>

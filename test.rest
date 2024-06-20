@@ -79,7 +79,7 @@ Authorization: Bearer {{token}}
 
 {
     "name": "acme",
-    "members": [1, 2],
+    "members": [1, 2, 3],
     "public": false
 }
 
