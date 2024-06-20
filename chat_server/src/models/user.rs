@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{AppError, AppState, User};
 
-use super::ChatUser;
+use chat_core::ChatUser;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateUser {
@@ -24,7 +24,6 @@ pub struct SigninUser {
     pub password: String,
 }
 
-#[allow(dead_code)]
 impl AppState {
     /// find a user by email
     pub async fn find_user_by_email(&self, email: &str) -> Result<Option<User>, AppError> {
@@ -38,6 +37,7 @@ impl AppState {
         Ok(user)
     }
 
+    #[allow(dead_code)]
     // find a user by id
     pub async fn find_user_by_id(&self, id: i64) -> Result<Option<User>, AppError> {
         let user = sqlx::query_as(
@@ -78,7 +78,8 @@ impl AppState {
         .await?;
 
         if ws.owner_id == 0 {
-            ws.update_owner(user.id as u64, &self.pool).await?;
+            self.update_workspace_owner(ws.id as _, user.id as u64)
+                .await?;
         }
 
         Ok(user)
@@ -149,20 +150,6 @@ fn verify_password(password: &str, password_hash: &str) -> Result<bool, AppError
         .is_ok();
 
     Ok(is_valid)
-}
-
-#[cfg(test)]
-impl User {
-    pub fn new(id: i64, fullname: &str, email: &str) -> Self {
-        Self {
-            id,
-            ws_id: 0,
-            fullname: fullname.to_string(),
-            email: email.to_string(),
-            password_hash: None,
-            created_at: chrono::Local::now(),
-        }
-    }
 }
 
 #[cfg(test)]

@@ -11,8 +11,9 @@ use tracing::{info, warn};
 
 use crate::{
     models::{ChatFile, CreateMessage, ListMessages},
-    AppError, AppState, User,
+    AppError, AppState,
 };
+use chat_core::User;
 
 pub(crate) async fn send_message_handler(
     Extension(user): Extension<User>,
