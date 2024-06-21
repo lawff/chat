@@ -1,6 +1,6 @@
 use axum::{
     extract::multipart::MultipartError,
-    http::StatusCode,
+    http::{header, StatusCode},
     response::{IntoResponse, Response},
     Json,
 };
@@ -43,6 +43,9 @@ pub enum AppError {
 
     #[error("chat file error: {0}")]
     ChatFileError(String),
+
+    #[error("parse header value: {0}")]
+    HeaderError(#[from] header::InvalidHeaderValue),
 }
 
 impl ErrorOutput {
@@ -66,6 +69,7 @@ impl IntoResponse for AppError {
             Self::MultipartError(_) => StatusCode::BAD_REQUEST,
             Self::CreateMessageError(_) => StatusCode::BAD_REQUEST,
             Self::ChatFileError(_) => StatusCode::BAD_REQUEST,
+            Self::HeaderError(_) => StatusCode::BAD_REQUEST,
         };
 
         (status, Json(ErrorOutput::new(self.to_string()))).into_response()

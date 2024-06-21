@@ -52,12 +52,22 @@ pub(crate) async fn file_handler(
     }
     let mine = mime_guess::from_path(&path).first_or_octet_stream();
 
-    let file = fs::File::open(path).await?;
+    let file = fs::File::open(path.clone()).await?;
     let stream = ReaderStream::new(file);
     let body = Body::from_stream(stream);
 
     let mut headers = HeaderMap::new();
-    headers.insert("content-type", mine.to_string().parse().unwrap());
+    headers.insert("content-type", mine.to_string().parse()?);
+    headers.insert(
+        "Content-Disposition",
+        format!(
+            "attachment; filename=\"{}\"",
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("unknown.png")
+        )
+        .parse()?,
+    );
 
     Ok((headers, body))
 }
