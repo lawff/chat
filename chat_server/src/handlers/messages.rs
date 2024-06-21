@@ -1,7 +1,7 @@
 use axum::{
     body::Body,
     extract::{Multipart, Path, Query, State},
-    http::HeaderMap,
+    http::{HeaderMap, StatusCode},
     response::IntoResponse,
     Extension, Json,
 };
@@ -22,7 +22,7 @@ pub(crate) async fn send_message_handler(
     Json(input): Json<CreateMessage>,
 ) -> Result<impl IntoResponse, AppError> {
     let msg = state.create_message(input, chat_id, user.id as _).await?;
-    Ok(Json(msg))
+    Ok((StatusCode::CREATED, Json(msg)))
 }
 
 pub(crate) async fn list_message_handler(
