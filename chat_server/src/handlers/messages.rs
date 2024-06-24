@@ -15,6 +15,16 @@ use crate::{
 };
 use chat_core::User;
 
+#[utoipa::path(
+    post,
+    path = "/api/chats/{id}",
+    responses(
+        (status = 201, description = "send message", body = Message),
+    ),
+    security(
+        ("token" = [])
+    )
+)]
 pub(crate) async fn send_message_handler(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -50,6 +60,13 @@ pub(crate) async fn list_message_handler(
     Ok(Json(messages))
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/files/{ws_id}/{path}",
+    security(
+        ("token" = [])
+    )
+)]
 pub(crate) async fn file_handler(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -87,6 +104,16 @@ pub(crate) async fn file_handler(
     Ok((headers, body))
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/upload",
+    responses(
+        (status = 200, description = "upload file", body = Vec<String>),
+    ),
+    security(
+        ("token" = [])
+    )
+)]
 pub(crate) async fn upload_handler(
     Extension(user): Extension<User>,
     State(state): State<AppState>,

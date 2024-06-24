@@ -73,10 +73,36 @@ pub(crate) async fn get_chat_handler(
     }
 }
 
+#[utoipa::path(
+    patch,
+    path = "/api/chats/{id}",
+    params(
+        ("id" = u64, Path, description = "Chat id")
+    ),
+    responses(
+        (status = 200, description = "update chat", body = Chat),
+    ),
+    security(
+        ("token" = [])
+    )
+)]
 pub(crate) async fn update_chat_handler() -> impl IntoResponse {
     "update chat"
 }
 
+#[utoipa::path(
+    delete,
+    path = "/api/chats/{id}",
+    params(
+        ("id" = u64, Path, description = "Chat id")
+    ),
+    responses(
+        (status = 200, description = "delete chat", body = Chat),
+    ),
+    security(
+        ("token" = [])
+    )
+)]
 pub(crate) async fn delete_chat_handler() -> impl IntoResponse {
     "delete chat"
 }

@@ -1,4 +1,4 @@
-use crate::handlers::*;
+use crate::{handlers::*, ChatFile};
 use crate::{
     AppState, CreateChat, CreateMessage, CreateUser, ErrorOutput, ListMessages, SigninUser,
 };
@@ -21,13 +21,19 @@ pub(crate) trait OpenApiRouter {
         paths(
             signup_handler,
             signin_handler,
-            list_chat_handler,
             create_chat_handler,
+            list_chat_users_handler,
             get_chat_handler,
+            list_chat_handler,
+            update_chat_handler,
+            delete_chat_handler,
             list_message_handler,
+            send_message_handler,
+            file_handler,
+            upload_handler,
         ),
         components(
-            schemas(User, Chat, ChatType, ChatUser, Message, Workspace, SigninUser, CreateUser, CreateChat, CreateMessage, ListMessages, AuthOutput, ErrorOutput),
+            schemas(User, Chat, ChatType, ChatUser, Message, Workspace, SigninUser, CreateUser, CreateChat, CreateMessage, ListMessages, AuthOutput, ErrorOutput, ChatFile),
         ),
         modifiers(&SecurityAddon),
         tags(
