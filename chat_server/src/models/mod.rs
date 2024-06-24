@@ -6,7 +6,7 @@ mod workspace;
 
 use serde::{Deserialize, Serialize};
 
-pub use chat::CreateChat;
+pub use chat::{CreateChat, UpdateChat};
 pub use messages::{CreateMessage, ListMessages};
 pub use user::{CreateUser, SigninUser};
 use utoipa::ToSchema;

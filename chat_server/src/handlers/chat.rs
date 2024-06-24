@@ -1,4 +1,5 @@
-use crate::{models::CreateChat, AppError, AppState};
+use crate::{models::CreateChat, AppError, AppState, UpdateChat};
+use anyhow::anyhow;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -86,8 +87,14 @@ pub(crate) async fn get_chat_handler(
         ("token" = [])
     )
 )]
-pub(crate) async fn update_chat_handler() -> impl IntoResponse {
-    "update chat"
+pub(crate) async fn update_chat_handler(
+    State(state): State<AppState>,
+    Path(id): Path<u64>,
+    Json(input): Json<UpdateChat>,
+) -> Result<impl IntoResponse, AppError> {
+    let chat = state.update_chat_by_id(id, input).await?;
+
+    Ok(Json(chat))
 }
 
 #[utoipa::path(
@@ -103,6 +110,17 @@ pub(crate) async fn update_chat_handler() -> impl IntoResponse {
         ("token" = [])
     )
 )]
-pub(crate) async fn delete_chat_handler() -> impl IntoResponse {
-    "delete chat"
+pub(crate) async fn delete_chat_handler(
+    State(state): State<AppState>,
+    Path(id): Path<u64>,
+) -> Result<impl IntoResponse, AppError> {
+    let ret = state.delete_chat_by_id(id).await?;
+
+    match ret {
+        true => Ok((StatusCode::OK, Json("Chat deleted successfully"))),
+        false => Err(AppError::AnyError(anyhow!(
+            "Failed to delete chat with id {}",
+            id
+        ))),
+    }
 }

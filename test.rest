@@ -121,3 +121,20 @@ Authorization: Bearer {{token}}
 
 GET http://localhost:6688/api/chats/1/messages?limit=100
 Authorization: Bearer {{token}}
+
+### get chat
+GET http://localhost:6688/api/chats/20
+Authorization: Bearer {{token}}
+
+### update chat
+PATCH  http://localhost:6688/api/chats/25
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "lawliet"
+}
+
+### update chat
+DELETE   http://localhost:6688/api/chats/25
+Authorization: Bearer {{token}}

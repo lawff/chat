@@ -16,7 +16,7 @@ pub async fn verify_chat(State(state): State<AppState>, req: Request, next: Next
         .await
         .unwrap_or_default()
     {
-        let err = AppError::CreateMessageError(format!(
+        let err = AppError::ChatError(format!(
             "User {} is not a member of chat {}",
             user.id, chat_id
         ));

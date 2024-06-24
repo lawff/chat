@@ -12,6 +12,12 @@ pub struct CreateChat {
     pub public: bool,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct UpdateChat {
+    pub name: Option<String>,
+    pub members: Option<Vec<i64>>,
+}
+
 impl AppState {
     pub async fn create_chat(&self, input: CreateChat, ws_id: u64) -> Result<Chat, AppError> {
         let len = input.members.len();
@@ -83,9 +89,9 @@ impl AppState {
     pub async fn get_chat_by_id(&self, id: u64) -> Result<Option<Chat>, AppError> {
         let chat = sqlx::query_as(
             r#"
-            SELECT id, ws_id, name, type, members, created_at
+            SELECT id, ws_id, name, type, members, created_at, deleted_at
             FROM chats
-            WHERE id = $1
+            WHERE id = $1 AND deleted_at IS NULL
             "#,
         )
         .bind(id as i64)
@@ -95,12 +101,78 @@ impl AppState {
         Ok(chat)
     }
 
+    pub async fn update_chat_by_id(&self, id: u64, input: UpdateChat) -> Result<Chat, AppError> {
+        let chat = self.get_chat_by_id(id).await?;
+
+        if chat.is_none() {
+            return Err(AppError::NotFound(format!("Chat with id {} not found", id)));
+        }
+
+        let name = match input.name {
+            Some(name) => Some(name),
+            None => chat.clone().unwrap().name,
+        };
+
+        let members = match input.members {
+            Some(members) => members,
+            None => chat.unwrap().members,
+        };
+
+        // 校验
+        if members.len() < 2 {
+            return Err(AppError::UpdateChatError(
+                "Chat must be at least 2 members".to_string(),
+            ));
+        }
+
+        // TODO: other keys
+
+        let chat = sqlx::query_as(
+            r#"
+            UPDATE chats
+            SET name = $1, members = $2
+            WHERE id = $3
+            RETURNING id, ws_id, name, type, members, created_at
+            "#,
+        )
+        .bind(name)
+        .bind(&members)
+        .bind(id as i64)
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(chat)
+    }
+
+    pub async fn delete_chat_by_id(&self, id: u64) -> Result<bool, AppError> {
+        // 先检查是否已经被删除
+        let chat = self.get_chat_by_id(id).await?;
+
+        if chat.is_none() {
+            return Err(AppError::NotFound(format!("Chat with id {} not found", id)));
+        }
+
+        let chat = sqlx::query(
+            r#"
+            UPDATE chats
+            SET deleted_at = now()
+            WHERE id = $1
+            "#,
+        )
+        .bind(id as i64)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(chat.rows_affected() == 1)
+    }
+
     pub async fn is_chat_member(&self, chat_id: u64, user_id: u64) -> Result<bool, AppError> {
+        // TODO: 不存在的时候报错？
         let is_member = sqlx::query(
             r#"
             SELECT 1
             FROM chats
-            WHERE id = $1 AND $2 = ANY(members)
+            WHERE id = $1 AND $2 = ANY(members) AND deleted_at IS NULL
             "#,
         )
         .bind(chat_id as i64)
@@ -177,6 +249,44 @@ mod tests {
         assert_eq!(chat.name.unwrap(), "general");
         assert_eq!(chat.ws_id, 1);
         assert_eq!(chat.members.len(), 5);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn chat_update_by_id_should_work() -> Result<()> {
+        let (_tdb, state) = AppState::new_for_test().await?;
+        let input = UpdateChat {
+            name: Some("new name".to_string()),
+            members: Some(vec![1, 2, 3]),
+        };
+        let chat = state
+            .update_chat_by_id(1, input)
+            .await
+            .expect("update chat failed");
+
+        assert_eq!(chat.id, 1);
+        assert_eq!(chat.name.unwrap(), "new name");
+        assert_eq!(chat.ws_id, 1);
+        assert_eq!(chat.members.len(), 3);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn chat_delete_by_id_should_work() -> Result<()> {
+        let (_tdb, state) = AppState::new_for_test().await?;
+        let deleted = state
+            .delete_chat_by_id(1)
+            .await
+            .expect("delete chat failed");
+        assert!(deleted);
+
+        let chat = state
+            .get_chat_by_id(1)
+            .await
+            .expect("get chat by id failed");
+        assert!(chat.is_none());
 
         Ok(())
     }
