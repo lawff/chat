@@ -51,7 +51,6 @@ pub struct Chat {
     pub id: i64,
     pub ws_id: i64,
     #[sqlx(default)]
-    #[serde(skip)]
     pub deleted_at: Option<DateTime<Local>>,
     pub name: Option<String>,
     pub r#type: ChatType,

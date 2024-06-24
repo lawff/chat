@@ -89,7 +89,7 @@ impl AppState {
     pub async fn get_chat_by_id(&self, id: u64) -> Result<Option<Chat>, AppError> {
         let chat = sqlx::query_as(
             r#"
-            SELECT id, ws_id, name, type, members, created_at, deleted_at
+            SELECT id, ws_id, name, type, members, created_at
             FROM chats
             WHERE id = $1 AND deleted_at IS NULL
             "#,

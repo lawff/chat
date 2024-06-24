@@ -32,7 +32,7 @@ pub(crate) async fn sse_handler(
     let stream = BroadcastStream::new(rx).filter_map(|v| v.ok()).map(|v| {
         let name = match v.as_ref() {
             AppEvent::NewChat(_) => "NewChat",
-            AppEvent::AddToChat(_) => "AddToChat",
+            AppEvent::UpdateChat(_) => "UpdateChat",
             AppEvent::RemoveFromChat(_) => "RemoveFromChat",
             AppEvent::NewMessage(_) => "NewMessage",
         };

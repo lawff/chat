@@ -123,18 +123,19 @@ GET http://localhost:6688/api/chats/1/messages?limit=100
 Authorization: Bearer {{token}}
 
 ### get chat
-GET http://localhost:6688/api/chats/20
+GET http://localhost:6688/api/chats/14
 Authorization: Bearer {{token}}
 
 ### update chat
-PATCH  http://localhost:6688/api/chats/25
+PATCH  http://localhost:6688/api/chats/28
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "name": "lawliet"
+    "name": "lawliet",
+    "members": [1, 2]
 }
 
 ### update chat
-DELETE   http://localhost:6688/api/chats/25
+DELETE   http://localhost:6688/api/chats/15
 Authorization: Bearer {{token}}

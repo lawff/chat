@@ -12,7 +12,7 @@ use crate::AppState;
 #[serde(tag = "event")]
 pub enum AppEvent {
     NewChat(Chat),
-    AddToChat(Chat),
+    UpdateChat(Chat),
     RemoveFromChat(Chat),
     NewMessage(Message),
 }
@@ -73,13 +73,13 @@ impl Notification {
     fn load(r#type: &str, payload: &str) -> anyhow::Result<Self> {
         match r#type {
             "chat_change" => {
-                let payload: ChatUpdated = serde_json::from_str(payload)?;
+                let payload: ChatUpdated = serde_json::from_str(payload).unwrap();
                 info!("chat_change: {:?}", payload);
                 let user_ids =
                     get_affected_chat_user_ids(payload.old.as_ref(), payload.new.as_ref());
                 let event = match payload.op.as_str() {
                     "INSERT" => AppEvent::NewChat(payload.new.expect("New should exist")),
-                    "UPDATE" => AppEvent::AddToChat(payload.new.expect("New should exist")),
+                    "UPDATE" => AppEvent::UpdateChat(payload.new.expect("New should exist")),
                     "DELETE" => AppEvent::RemoveFromChat(payload.old.expect("Old should exist")),
                     _ => return Err(anyhow::anyhow!("Invalid operation")),
                 };
@@ -108,6 +108,11 @@ fn get_affected_chat_user_ids(old: Option<&Chat>, new: Option<&Chat>) -> HashSet
             let old_user_ids: HashSet<_> = old.members.iter().map(|v| *v as u64).collect();
             let new_user_ids: HashSet<_> = new.members.iter().map(|v| *v as u64).collect();
             if old_user_ids == new_user_ids {
+                // 删除 或者 名字更改 需要通知所有用户
+                // TODO: DELETE
+                if old.name != new.name || old.deleted_at != new.deleted_at {
+                    return new_user_ids;
+                }
                 HashSet::new()
             } else {
                 old_user_ids.union(&new_user_ids).copied().collect()
