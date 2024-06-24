@@ -56,6 +56,8 @@ pub async fn setup_pg_listener(state: AppState) -> anyhow::Result<()> {
                     info!("Sending notification to user: {}", user_id);
                     if let Err(e) = tx.send(notification.event.clone()) {
                         warn!("Failed to send notification to user {}: {}", user_id, e);
+                        // 用户退出sse连接， 进行删除
+                        users.remove(&user_id);
                     }
                 }
             }
